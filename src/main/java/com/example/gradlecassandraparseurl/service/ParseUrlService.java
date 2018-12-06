@@ -32,7 +32,7 @@ public class ParseUrlService {
                     .map(link -> link.attr("href"))
                     .parallel()
                     .filter(hrefUrl -> hrefUrl.contains("http") && !host.equals(URI.create(hrefUrl).getHost()))
-                    .peek(hrefUrl -> hrefModelRepository.save(new HrefModel(hrefUrl)))
+                   // .peek(hrefUrl -> hrefModelRepository.save(new HrefModel(hrefUrl)))
                     .collect(Collectors.joining("\n    "));
         } catch (final IOException e) {
             log.error("Error during parsing url", e);
