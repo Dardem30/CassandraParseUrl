@@ -29,6 +29,5 @@ dependencies {
 	compile group: 'org.jsoup', name: 'jsoup', version: '1.7.2'
 	compile group: 'log4j', name: 'log4j', version:'1.2.17'
 	compileOnly 'org.projectlombok:lombok:1.18.4'
-	implementation('org.springframework.boot:spring-boot-starter-data-cassandra')
 	testImplementation('org.springframework.boot:spring-boot-starter-test')
 }

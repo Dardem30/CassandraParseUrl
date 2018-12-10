@@ -1,8 +1,5 @@
 package com.example.gradlecassandraparseurl.service;
 
-import com.example.gradlecassandraparseurl.bo.HrefModel;
-import com.example.gradlecassandraparseurl.da.HrefModelRepository;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -11,31 +8,54 @@ import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.net.URI;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Component
 @Slf4j
-@RequiredArgsConstructor
 public class ParseUrlService {
-    private final HrefModelRepository hrefModelRepository;
     /**
      * This method get all advertisements href of page
-     * @param inUrl
+     * @param url input url
      * @return string(all url of advertisements)
      */
-    public final String parseUrl(final String inUrl) throws IOException {
+    public final List<String> parseForAdvertisements(final String url) throws IOException {
         try {
-            final Document doc = Jsoup.connect(inUrl).get();
-            final String host = URI.create(inUrl).getHost();
+            final Document doc = Jsoup.connect(url).get();
+            final String host = URI.create(url).getHost();
             final Elements links = doc.select("a[href]");
-            return "Рекламные ссылки: \n    " + links.stream()
+            return links.stream()
                     .map(link -> link.attr("href"))
-                    .parallel()
                     .filter(hrefUrl -> hrefUrl.contains("http") && !host.equals(URI.create(hrefUrl).getHost()))
-                   // .peek(hrefUrl -> hrefModelRepository.save(new HrefModel(hrefUrl)))
-                    .collect(Collectors.joining("\n    "));
+                    .collect(Collectors.toList());
         } catch (final IOException e) {
-            log.error("Error during parsing url", e);
+            log.error("Error during parsing url for advertisements", e);
+            throw new IOException(e);
+        }
+    }
+    /**
+     * This method get all href(with type) of page
+     * @param url input url
+     * @return string(all url of advertisements)
+     */
+    public final Map<String, List<String>> parseForType(final String url) throws IOException {
+        try {
+            final Map<String, List<String>> result = new HashMap<>();
+            final Document doc = Jsoup.connect(url).get();
+            final Elements links = doc.select("a[href]");
+            result.put("images",  links.stream()
+                    .filter(link -> link.getElementsByTag("img") != null)
+                    .map(link -> link.attr("href"))
+                    .collect(Collectors.toList()));
+            result.put("others", links.stream()
+                    .filter(link -> link.getElementsByTag("img") == null)
+                    .map(link -> link.attr("href"))
+                    .collect(Collectors.toList()));
+            return result;
+        } catch (final IOException e) {
+            log.error("Error during parsing url for type", e);
             throw new IOException(e);
         }
     }
