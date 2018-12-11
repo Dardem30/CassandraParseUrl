@@ -20,7 +20,7 @@ public class ParserController {
         return ResponseEntity.ok(parseUrlService.parseForAdvertisements(url.getUrl()));
     }
     @PostMapping(value = "/typeOfLinks")
-    public final ResponseEntity typeOfLinks(final @RequestBody RequestForm url) {
+    public final ResponseEntity typeOfLinks(final @RequestBody RequestForm url) throws IOException {
         return ResponseEntity.ok(parseUrlService.parseForType(url.getUrl()));
     }
     @PostMapping(value = "/isImage")
