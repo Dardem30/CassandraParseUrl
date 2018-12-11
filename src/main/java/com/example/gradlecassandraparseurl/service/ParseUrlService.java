@@ -6,8 +6,12 @@ import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
 import org.springframework.stereotype.Component;
 
+import javax.imageio.ImageIO;
+import javax.swing.*;
+import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.net.URI;
+import java.net.URL;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -46,17 +50,22 @@ public class ParseUrlService {
             final Document doc = Jsoup.connect(url).get();
             final Elements links = doc.select("a[href]");
             result.put("images",  links.stream()
-                    .filter(link -> link.getElementsByTag("img") != null)
+                    .filter(link -> link.children().stream().anyMatch(chil -> chil.tag().getName().equals("img")))
                     .map(link -> link.attr("href"))
                     .collect(Collectors.toList()));
             result.put("others", links.stream()
-                    .filter(link -> link.getElementsByTag("img") == null)
                     .map(link -> link.attr("href"))
+                    .filter(hrefUrl -> result.get("images").stream().noneMatch(imageUrl -> imageUrl.equals(hrefUrl)))
                     .collect(Collectors.toList()));
             return result;
         } catch (final IOException e) {
             log.error("Error during parsing url for type", e);
             throw new IOException(e);
         }
+    }
+    public final boolean isImage(final String url) throws IOException {
+        final URL imUrl = new URL(url);
+        final BufferedImage bufferedImage = ImageIO.read(imUrl);
+        return bufferedImage != null && new ImageIcon(bufferedImage).getImage().getWidth(null) != -1;
     }
 }
