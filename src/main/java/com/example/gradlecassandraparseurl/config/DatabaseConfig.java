@@ -21,13 +21,13 @@ public class DatabaseConfig {
     private String url;
 
     @Bean
-    public MongoDbFactory mongoDbFactory() throws UnknownHostException {
+    public MongoDbFactory mongoDbFactory() {
         final MongoClientURI mongoClientURI = new MongoClientURI(url);
         return new SimpleMongoDbFactory(mongoClientURI);
     }
 
     @Bean
-    public MongoTemplate mongoTemplate() throws UnknownHostException {
+    public MongoTemplate mongoTemplate() {
         return new MongoTemplate(mongoDbFactory());
     }
 }

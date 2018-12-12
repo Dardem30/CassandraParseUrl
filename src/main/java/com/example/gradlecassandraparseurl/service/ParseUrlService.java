@@ -73,10 +73,11 @@ public class ParseUrlService {
     public final Map<String, String> getAllAdvertisementsLinkedImages(final String url) throws IOException {
         try {
             final Document doc = Jsoup.connect(url).get();
-            final Elements links = doc.select("a[href]");
+            final Elements links = doc.select("a");
             final String host = URI.create(url).getHost();
             List<Element> linked = links.stream()
                     .filter(link -> link.children().stream().anyMatch(chil -> chil.tag().getName().equals("img")) && link.attr("href").contains("http") && !host.equals(URI.create(link.attr("href")).getHost()))
+                    .filter(link -> link.children().attr("src").contains("http"))
                     .collect(Collectors.toList());
             Map<String,String> result = new HashMap<>();
             linked.forEach(link -> result.put(link.attr("href"), link.children().attr("src")));
