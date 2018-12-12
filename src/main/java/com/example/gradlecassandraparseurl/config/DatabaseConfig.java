@@ -1,6 +1,6 @@
 package com.example.gradlecassandraparseurl.config;
 
-import com.mongodb.MongoClient;
+import com.mongodb.MongoClientURI;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -17,16 +17,13 @@ import java.net.UnknownHostException;
 @EnableMongoRepositories("com.example.gradlecassandraparseurl.dao")
 public class DatabaseConfig {
 
-    @Value("${db.mongo.host}")
-    private String host;
-
-    @Value("${db.mongo.database}")
-    private String database;
+    @Value("${db.mongo.url}")
+    private String url;
 
     @Bean
     public MongoDbFactory mongoDbFactory() throws UnknownHostException {
-        final MongoClient mongoClient = new MongoClient(host);
-        return new SimpleMongoDbFactory(mongoClient, database);
+        final MongoClientURI mongoClientURI = new MongoClientURI(url);
+        return new SimpleMongoDbFactory(mongoClientURI);
     }
 
     @Bean

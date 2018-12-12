@@ -91,4 +91,7 @@ public class ParseUrlService {
         final BufferedImage bufferedImage = ImageIO.read(imUrl);
         return bufferedImage != null && new ImageIcon(bufferedImage).getImage().getWidth(null) != -1;
     }
+    public final Iterable<Link> test(){
+        return linkDAO.findAll();
+    }
 }
