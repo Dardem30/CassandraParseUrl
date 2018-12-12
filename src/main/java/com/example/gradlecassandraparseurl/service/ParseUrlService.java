@@ -1,8 +1,12 @@
 package com.example.gradlecassandraparseurl.service;
 
+import com.example.gradlecassandraparseurl.dao.LinkDAO;
+import com.example.gradlecassandraparseurl.model.Link;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.springframework.stereotype.Component;
 
@@ -19,7 +23,9 @@ import java.util.stream.Collectors;
 
 @Component
 @Slf4j
+@RequiredArgsConstructor
 public class ParseUrlService {
+    private final LinkDAO linkDAO;
     /**
      * This method get all advertisements href of page
      * @param url input url
@@ -33,6 +39,7 @@ public class ParseUrlService {
             return links.stream()
                     .map(link -> link.attr("href"))
                     .filter(hrefUrl -> hrefUrl.contains("http") && !host.equals(URI.create(hrefUrl).getHost()))
+                    .peek(hrefUrl -> linkDAO.save(new Link(hrefUrl, url)))
                     .collect(Collectors.toList());
         } catch (final IOException e) {
             log.error("Error during parsing url for advertisements", e);
@@ -60,6 +67,22 @@ public class ParseUrlService {
             return result;
         } catch (final IOException e) {
             log.error("Error during parsing url for type", e);
+            throw new IOException(e);
+        }
+    }
+    public final Map<String, String> getAllAdvertisementsLinkedImages(final String url) throws IOException {
+        try {
+            final Document doc = Jsoup.connect(url).get();
+            final Elements links = doc.select("a[href]");
+            final String host = URI.create(url).getHost();
+            List<Element> linked = links.stream()
+                    .filter(link -> link.children().stream().anyMatch(chil -> chil.tag().getName().equals("img")) && link.attr("href").contains("http") && !host.equals(URI.create(link.attr("href")).getHost()))
+                    .collect(Collectors.toList());
+            Map<String,String> result = new HashMap<>();
+            linked.forEach(link -> result.put(link.attr("href"), link.children().attr("src")));
+            return result;
+        } catch (final IOException e) {
+            log.error("Error during parsing url for advertisements", e);
             throw new IOException(e);
         }
     }

@@ -27,4 +27,8 @@ public class ParserController {
     public final ResponseEntity isImage(final @RequestBody RequestForm url) throws IOException {
         return ResponseEntity.ok(parseUrlService.isImage(url.getUrl()));
     }
+    @PostMapping(value = "/getAllLinkedImages")
+    public final ResponseEntity getAllLinkedImages(final @RequestBody RequestForm url) throws IOException {
+        return ResponseEntity.ok(parseUrlService.getAllAdvertisementsLinkedImages(url.getUrl()));
+    }
 }
