@@ -39,7 +39,7 @@ public class ParseUrlService {
             return links.stream()
                     .map(link -> link.attr("href"))
                     .filter(hrefUrl -> hrefUrl.contains("http") && !host.equals(URI.create(hrefUrl).getHost()))
-                    .peek(hrefUrl -> linkDAO.save(new Link(hrefUrl, url)))
+                    .peek(hrefUrl -> save(hrefUrl, url))
                     .collect(Collectors.toList());
         } catch (final IOException e) {
             log.error("Error during parsing url for advertisements", e);
@@ -69,7 +69,7 @@ public class ParseUrlService {
         }
     }
 
-    public final Map<String, Set> getAllAdvertisementsLinkedImages(final String url) throws IOException {
+    public final Map<String, Set> getAllAdvertisementsLinkedImages(final String url, final boolean isPrivate) throws IOException {
         try {
             final Document doc = Jsoup.connect(url).get();
             final Elements links = doc.select("a");
@@ -79,7 +79,7 @@ public class ParseUrlService {
                             && link.attr("href").contains("http") && !host.equals(URI.create(link.attr("href")).getHost()))
                     .collect(Collectors.toSet());
             final Map<String, Set> res = new HashMap<>();
-            res.put("links", linked.stream().map(link -> link.attr("href")).collect(Collectors.toSet()));
+            res.put("links", linked.stream().map(link -> link.attr("href")).peek(hrefUrl -> {if (!isPrivate){ save(hrefUrl, url);}}).collect(Collectors.toSet()));
             res.put("images", linked.stream().map(Element::children).map(link -> link.attr("src")).collect(Collectors.toSet()));
             return res;
         } catch (final IOException e) {
@@ -96,5 +96,11 @@ public class ParseUrlService {
 
     public final Iterable<Link> parseHistory() {
         return linkDAO.findAll();
+    }
+    public final void clearHistory() {
+        linkDAO.deleteAll();
+    }
+    public final void save(final String hrefUrl, final String rootUrl) {
+        linkDAO.save(new Link(hrefUrl, rootUrl));
     }
 }

@@ -29,10 +29,15 @@ public class ParserController {
     }
     @PostMapping(value = "/getAllLinkedImages")
     public final ResponseEntity getAllLinkedImages(final @RequestBody RequestForm url) throws IOException {
-        return ResponseEntity.ok(parseUrlService.getAllAdvertisementsLinkedImages(url.getUrl()));
+        return ResponseEntity.ok(parseUrlService.getAllAdvertisementsLinkedImages(url.getUrl(), url.isPrivate()));
     }
     @GetMapping(value = "/getParseHistory")
-    public final ResponseEntity test() {
+    public final ResponseEntity getParseHistory() {
         return ResponseEntity.ok(parseUrlService.parseHistory());
+    }
+    @DeleteMapping(value = "/clearHistory")
+    public final String clearHistory() {
+        parseUrlService.clearHistory();
+        return "clean";
     }
 }
