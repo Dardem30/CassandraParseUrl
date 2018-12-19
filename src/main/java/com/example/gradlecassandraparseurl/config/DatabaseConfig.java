@@ -22,8 +22,7 @@ public class DatabaseConfig {
 
     @Bean
     public MongoDbFactory mongoDbFactory() {
-        final MongoClientURI mongoClientURI = new MongoClientURI(url);
-        return new SimpleMongoDbFactory(mongoClientURI);
+        return new SimpleMongoDbFactory(new MongoClientURI(url));
     }
 
     @Bean

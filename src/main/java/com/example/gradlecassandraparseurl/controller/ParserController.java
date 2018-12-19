@@ -31,8 +31,8 @@ public class ParserController {
     public final ResponseEntity getAllLinkedImages(final @RequestBody RequestForm url) throws IOException {
         return ResponseEntity.ok(parseUrlService.getAllAdvertisementsLinkedImages(url.getUrl()));
     }
-    @GetMapping(value = "/test")
-    public final ResponseEntity test() throws IOException {
-        return ResponseEntity.ok(parseUrlService.test());
+    @GetMapping(value = "/getParseHistory")
+    public final ResponseEntity test() {
+        return ResponseEntity.ok(parseUrlService.parseHistory());
     }
 }

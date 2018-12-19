@@ -16,10 +16,7 @@ import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Component
@@ -56,40 +53,34 @@ public class ParseUrlService {
      * @param url input url
      * @return string(all url of advertisements)
      */
-    public final Map<String, List<String>> parseForType(final String url) throws IOException {
+    public final Map parseForType(final String url) throws IOException {
         try {
-            final Map<String, List<String>> result = new HashMap<>();
             final Document doc = Jsoup.connect(url).get();
             final Elements links = doc.select("a[href]");
-            result.put("images", links.stream()
-                    .filter(link -> link.children().stream().anyMatch(chil -> chil.tag().getName().equals("img")))
-                    .map(link -> link.attr("href"))
-                    .collect(Collectors.toList()));
-            result.put("others", links.stream()
-                    .map(link -> link.attr("href"))
-                    .filter(hrefUrl -> result.get("images").stream().noneMatch(imageUrl -> imageUrl.equals(hrefUrl)))
-                    .collect(Collectors.toList()));
-            return result;
+            return links.stream()
+                    .map(Element::children)
+                    .collect(Collectors.toMap(key -> key.stream().anyMatch(chil -> chil.tag().getName().equals("img")) ? "images" : "others", value -> {
+                        final List<Element> list = value.stream().map(Element::parent).collect(Collectors.toList());
+                        return list.size() != 0 ? list.get(0).attr("href") : "miss";
+                    }, (k1, k2) -> k1 + "," + k2));
         } catch (final IOException e) {
             log.error("Error during parsing url for type", e);
             throw new IOException(e);
         }
     }
 
-    public final Map<String, ArrayList<String>> getAllAdvertisementsLinkedImages(final String url) throws IOException {
+    public final Map<String, Set> getAllAdvertisementsLinkedImages(final String url) throws IOException {
         try {
             final Document doc = Jsoup.connect(url).get();
             final Elements links = doc.select("a");
             final String host = URI.create(url).getHost();
-            List<Element> linked = links.stream()
-                    .filter(link -> link.children().stream().anyMatch(chil -> chil.tag().getName().equals("img")) && link.attr("href").contains("http") && !host.equals(URI.create(link.attr("href")).getHost()))
-                    .filter(link -> link.children().attr("src").contains("http"))
-                    .collect(Collectors.toList());
-            Map<String, String> result = new HashMap<>();
-            linked.forEach(link -> result.put(link.attr("href"), link.children().attr("src")));
-            Map<String, ArrayList<String>> res = new HashMap<>();
-            res.put("links", new ArrayList<>(result.keySet()));
-            res.put("images", new ArrayList<>(result.values()));/////////// Я БУДУ РЕФАКТОРИТЬ!!!!!!!
+            final Set<Element> linked = links.stream()
+                    .filter(link -> link.children().stream().anyMatch(chil -> chil.tag().getName().equals("img")) && link.children().attr("src").contains("http")
+                            && link.attr("href").contains("http") && !host.equals(URI.create(link.attr("href")).getHost()))
+                    .collect(Collectors.toSet());
+            final Map<String, Set> res = new HashMap<>();
+            res.put("links", linked.stream().map(link -> link.attr("href")).collect(Collectors.toSet()));
+            res.put("images", linked.stream().map(Element::children).map(link -> link.attr("src")).collect(Collectors.toSet()));
             return res;
         } catch (final IOException e) {
             log.error("Error during parsing url for advertisements", e);
@@ -103,7 +94,7 @@ public class ParseUrlService {
         return bufferedImage != null && new ImageIcon(bufferedImage).getImage().getWidth(null) != -1;
     }
 
-    public final Iterable<Link> test() {
+    public final Iterable<Link> parseHistory() {
         return linkDAO.findAll();
     }
 }
