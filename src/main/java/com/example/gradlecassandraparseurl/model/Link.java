@@ -1,24 +1,24 @@
 package com.example.gradlecassandraparseurl.model;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 import org.bson.types.ObjectId;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.time.LocalDateTime;
+
 @Document(collection = "link")
 @Data
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
 public class Link {
     private ObjectId id;
     private String url;
     private String rootUrl;
+    private LocalDateTime createTime;
+    private String ip;
 
-    public Link(String url, String rootUrl) {
+    public Link(final String url,final String rootUrl,final String ip) {
         this.url = url;
         this.rootUrl = rootUrl;
+        this.createTime = LocalDateTime.now();
+        this.ip = ip;
     }
 }

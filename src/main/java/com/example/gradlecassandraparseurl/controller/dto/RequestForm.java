@@ -1,10 +1,9 @@
 package com.example.gradlecassandraparseurl.controller.dto;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-
 public class RequestForm {
     private String url;
     private boolean isPrivate;
+    private String ip;
 
     public String getUrl() {
         return url;
@@ -20,5 +19,13 @@ public class RequestForm {
 
     public void setIsPrivate(boolean aPrivate) {
         isPrivate = aPrivate;
+    }
+
+    public String getIp() {
+        return ip;
+    }
+
+    public void setIp(String ip) {
+        this.ip = ip;
     }
 }
