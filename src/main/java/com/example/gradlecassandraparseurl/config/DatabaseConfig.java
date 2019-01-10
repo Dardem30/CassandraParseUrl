@@ -10,8 +10,6 @@ import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.SimpleMongoDbFactory;
 import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
 
-import java.net.UnknownHostException;
-
 @Configuration
 @PropertySource("classpath:application.properties")
 @EnableMongoRepositories("com.example.gradlecassandraparseurl.dao")

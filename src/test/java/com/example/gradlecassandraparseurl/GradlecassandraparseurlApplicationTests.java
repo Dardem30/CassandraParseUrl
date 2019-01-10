@@ -50,7 +50,7 @@ public class GradlecassandraparseurlApplicationTests {
 	}
 	@Test
 	public void testMeth() throws IOException {
-		Assert.assertEquals(result, parseUrlService.parseUrl(inUrl));
+		Assert.assertEquals(result, parseUrlService.parseForAdvertisements(inUrl));
 	}
 
 }

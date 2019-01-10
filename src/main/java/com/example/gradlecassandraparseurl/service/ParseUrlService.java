@@ -112,8 +112,4 @@ public class ParseUrlService {
     private void save(final String hrefUrl, final String rootUrl, final String ip) {
         linkDAO.save(new Link(hrefUrl, rootUrl, ip));
     }
-
-    public static void main(String[] args) throws MalformedURLException {
-        System.out.println(new URL("http://youtube.com"));
-    }
  }

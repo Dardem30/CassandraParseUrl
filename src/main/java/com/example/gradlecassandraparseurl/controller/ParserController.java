@@ -3,7 +3,10 @@ package com.example.gradlecassandraparseurl.controller;
 import com.example.gradlecassandraparseurl.controller.dto.RequestForm;
 import com.example.gradlecassandraparseurl.service.ParseUrlService;
 import lombok.RequiredArgsConstructor;
+import org.apache.tomcat.util.descriptor.web.ContextHandler;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -26,15 +29,7 @@ public class ParserController {
     }
     @PostMapping(value = "/getAllLinkedImages")
     public final ResponseEntity getAllLinkedImages(final @RequestBody RequestForm url) {
+        url.setIsPrivate(false);
         return ResponseEntity.ok(parseUrlService.getAllAdvertisementsLinkedImages(url.getUrl(), url.isPrivate(), url.getIp()));
-    }
-    @GetMapping(value = "/getParseHistory")
-    public final ResponseEntity getParseHistory() {
-        return ResponseEntity.ok(parseUrlService.parseHistory());
-    }
-    @DeleteMapping(value = "/clearHistory")
-    public final String clearHistory() {
-        parseUrlService.clearHistory();
-        return "clean";
     }
 }
